@@ -38,7 +38,5 @@ class WohnungItem(scrapy.Item):
     crawltime = scrapy.Field()
     
     # frei From
-    freiab = scrapy.Field()
+    zeit = scrapy.Field()
     
-    # frei To
-    freizu = scrapy.Field()
