@@ -4,10 +4,10 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
-
+import random, base64
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
-
+from wohnung.settings import USER_AGENT
 
 class WohnungSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -101,3 +101,9 @@ class WohnungDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+class RandomUserAgent(object):
+    def process_request(self, request, spider):
+        useragent = random.choice(USER_AGENT)
+        request.headers.setdefault("User-Agent",useragent)
+        

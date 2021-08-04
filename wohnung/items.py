@@ -10,20 +10,32 @@ class WohnungItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     
+    # md5
+    md5 = scrapy.Field()
+    
+    # 来源类型
+    wohnung_type = scrapy.Field()
+    
     # 标题
     title = scrapy.Field()
     
     # 网页链接
-    wohnungurl = scrapy.Field()
+    url = scrapy.Field()
     
     # 总租金
     gesamtmiete = scrapy.Field()
+    
+    # nebencost
+    nebencost = scrapy.Field()
     
     # 押金
     kaution = scrapy.Field()
     
     # Adresse
     adresse = scrapy.Field()
+    
+    # recording data
+    crawltime = scrapy.Field()
     
     # frei From
     freiab = scrapy.Field()
