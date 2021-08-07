@@ -20,21 +20,20 @@ class PriceSpider(scrapy.Spider):
     def start_requests(self):
         """负责dump出最初的url
         """        
-        # 第一个是wg-gesucht，第二个是immobile24
-        urls = ["https://www.wg-gesucht.de/1-zimmer-wohnungen-in-Munchen.90.1.1.0.html?offer_filter=1&city_id=90&noDeact=1&categories%5B%5D=1&rent_types%5B%5D=0","https://www.immobilienscout24.de/Suche/de/bayern/muenchen/wohnung-mieten?sorting=2",]
+        # 第一个是wg-gesucht 1 zimmer ，第二个是 wg-gesucht wg
+        urls = ["https://www.wg-gesucht.de/1-zimmer-wohnungen-in-Munchen.90.1.1.0.html?offer_filter=1&city_id=90&noDeact=1&categories%5B%5D=1&rent_types%5B%5D=0","https://www.wg-gesucht.de/wg-zimmer-in-Munchen.90.0.1.1.html?category=0&city_id=90&rent_type=0&noDeact=1&img=1&rent_types%5B0%5D=0",]
         
         for idx, url in enumerate(urls):
-            if idx == 0:
+            if idx == 0: # 1 zimmer
+                yield scrapy.Request(url=url, meta={'wohnung_type':"wg1"},callback=self.page_parse)
+            if idx == 1: # wg
                 yield scrapy.Request(url=url, meta={'wohnung_type':"wg"},callback=self.page_parse)
-            if idx == 1:
-                pass
-                # yield scrapy.Request(url=url, meta={'wohnung_type':"immo"},callback=self.page_parse)
                 
     def page_parse(self, response):
         """ yield pages
         """
         wohnung_type = response.meta.get("wohnung_type")
-        if wohnung_type == "wg":
+        if wohnung_type == "wg" or wohnung_type == "wg1":
             all_pages = response.css("ul.pagination.pagination-sm a")
             for page in all_pages[1:-1]:
                 url = page.css("a::attr(href)").get()
