@@ -38,7 +38,7 @@ class PriceSpider(scrapy.Spider):
             for page in all_pages[1:-1]:
                 url = page.css("a::attr(href)").get()
                 url = parse.urljoin(self.wg_base_url,url)
-                yield scrapy.Request(url=url, meta={'wohnung_type':"wg"},callback=self.wohnung_parse)
+                yield scrapy.Request(url=url, meta={'wohnung_type':wohnung_type},callback=self.wohnung_parse)
         elif wohnung_type == "immo":
             pass
     
