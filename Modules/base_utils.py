@@ -80,7 +80,7 @@ def dump_time_dist(arg,json_path):
 # Get all json list from dataset folder
 pattern = "dataset/*.json"
 json_lst = glob.glob(pattern)
-
+json_lst.sort()
 pbar = tqdm(total=len(json_lst))
 print_str = []
 for json_path in json_lst:    
