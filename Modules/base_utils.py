@@ -29,10 +29,16 @@ def dump_time_dist(arg,json_path):
     # Opening JSON file
     f = open(json_path)
     try:
-        wohnung_lst = json.load(f)
+        all_wohnung_lst = json.load(f)
     except:
         return None
     f.close()
+    wohnung_lst = []
+    for i in all_wohnung_lst:
+        if i["wohnung_type"] == arg["wohnung_type"] or arg["wohnung_type"] == None:
+            wohnung_lst.append(i)
+    
+    assert len(wohnung_lst) != 0, "no wohnung has found."
 
     # set pilot time
     crawl_time = wohnung_lst[0]['crawltime']
@@ -42,11 +48,13 @@ def dump_time_dist(arg,json_path):
     time_dist_lst = np.zeros(len(wohnung_lst),dtype=int)
     time_abs_lst = []
     for idx, wohnung in enumerate(wohnung_lst):
+        
         ok_time = wohnung['zeit'].split('-')
-        if len(ok_time) == 1:
-            start_time = ok_time[0][2:] # ab00.00.0000
+        
+        if len(ok_time) == 1: # ab00.00.0000
+            start_time = ok_time[0][2:] 
             start_time = datetime.datetime.strptime(start_time, "%d.%m.%Y")
-        elif len(ok_time) == 2:
+        elif len(ok_time) == 2: # 00.00.0000 - 00.00.000
             start_time = ok_time[0]
             end_time = ok_time[1]
             start_time = datetime.datetime.strptime(start_time, "%d.%m.%Y")
@@ -83,6 +91,8 @@ def dump_time_dist(arg,json_path):
     
 
 def main():
+    arg = {"top_n":10,"is_print":False,"wohnung_type":"wg1"}
+    
     # Get all json list from dataset folder
     pattern = "dataset/*.json"
     json_lst = glob.glob(pattern)
@@ -93,7 +103,7 @@ def main():
     print_date_dist = []
     print_date_start = []
     for json_path in json_lst:    
-        ret = dump_time_dist({"top_n":10,"is_print":False},json_path)
+        ret = dump_time_dist(arg,json_path)
         
         if ret:
             print_date_dist.append("{0}: {1}".format(json_path.split("\\")[-1][:-5],ret['date_dist']))
