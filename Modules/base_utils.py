@@ -6,6 +6,7 @@ import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tqdm import tqdm
 
 def get_statistic_info(values:list) -> dict:
     """calculate all statistic value,
@@ -80,8 +81,14 @@ def dump_time_dist(arg,json_path):
 pattern = "dataset/*.json"
 json_lst = glob.glob(pattern)
 
-# DEBUG
-print("===== date and top-10 time distance =====")
+pbar = tqdm(total=len(json_lst))
+print_str = []
 for json_path in json_lst:    
     time_dist = dump_time_dist({"top_n":10,"is_print":False},json_path)
-    print("{0}: {1}".format(json_path.split("\\")[-1][:-5],time_dist))
+    print_str.append("{0}: {1}".format(json_path.split("\\")[-1][:-5],time_dist))
+    pbar.update(1)
+pbar.close()
+
+print("===== date and top-10 time distance =====")
+for i in print_str:
+    print(i)
