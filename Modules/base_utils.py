@@ -40,6 +40,7 @@ def dump_time_dist(arg,json_path):
 
     # read all start time
     time_dist_lst = np.zeros(len(wohnung_lst),dtype=int)
+    time_abs_lst = []
     for idx, wohnung in enumerate(wohnung_lst):
         ok_time = wohnung['zeit'].split('-')
         if len(ok_time) == 1:
@@ -52,7 +53,7 @@ def dump_time_dist(arg,json_path):
             end_time = datetime.datetime.strptime(end_time, "%d.%m.%Y")
 
         time_dist_lst[idx] = (start_time - pilot_time).days
-
+        
     # DEBUG
     # calculate the distance
     # for idx, i in enumerate(time_dist_lst):
@@ -73,22 +74,39 @@ def dump_time_dist(arg,json_path):
         print(time_dst_lst)
         print(time_bin_count)
         print(time_bin_count_sorted)
+        
+    start_date = []
+    for delta_days in time_bin_count_sorted[:arg["top_n"]]:
+        start_date.append((pilot_time + datetime.timedelta(days=int(delta_days))).strftime('%Y-%m-%d'))
+        
+    return {"date_dist": time_bin_count_sorted[:arg["top_n"]],"date_start":start_date}
     
-    return time_bin_count_sorted[:arg["top_n"]]
-    
-    
-# Get all json list from dataset folder
-pattern = "dataset/*.json"
-json_lst = glob.glob(pattern)
-json_lst.sort()
-pbar = tqdm(total=len(json_lst))
-print_str = []
-for json_path in json_lst:    
-    time_dist = dump_time_dist({"top_n":10,"is_print":False},json_path)
-    print_str.append("{0}: {1}".format(json_path.split("\\")[-1][:-5],time_dist))
-    pbar.update(1)
-pbar.close()
 
-print("===== date and top-10 time distance =====")
-for i in print_str:
-    print(i)
+def main():
+    # Get all json list from dataset folder
+    pattern = "dataset/*.json"
+    json_lst = glob.glob(pattern)
+    json_lst.sort()
+    
+    pbar = tqdm(total=len(json_lst))
+    
+    print_date_dist = []
+    print_date_start = []
+    for json_path in json_lst:    
+        ret = dump_time_dist({"top_n":10,"is_print":False},json_path)
+        
+        if ret:
+            print_date_dist.append("{0}: {1}".format(json_path.split("\\")[-1][:-5],ret['date_dist']))
+            print_date_start.append("{0}: {1}".format(json_path.split("\\")[-1][:-5],ret["date_start"]))
+
+        # update pbar 
+        pbar.update(1)
+    pbar.close()
+
+    print("===== date and top-10 time distance =====")
+    for i in print_date_start:
+        print(i)
+
+if __name__ == "__main__":
+    main()
+    
