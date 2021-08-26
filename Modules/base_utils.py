@@ -82,15 +82,18 @@ def dump_time_dist(arg,json_path):
         print(time_dst_lst)
         print(time_bin_count)
         print(time_bin_count_sorted)
+        print(time_bin_count[time_bin_count_sorted])
         
-    start_date = []
-    for delta_days in time_bin_count_sorted[:arg["top_n"]]:
-        start_date.append((pilot_time + datetime.timedelta(days=int(delta_days))).strftime('%Y-%m-%d'))
-        
-    return {"date_dist": time_bin_count_sorted[:arg["top_n"]],"date_start":start_date}
+    
+    ret = []
+    for idx,delta_days in enumerate(time_bin_count_sorted[:arg["top_n"]]):
+        start_date = (pilot_time + datetime.timedelta(days=int(delta_days))).strftime('%Y-%m-%d')
+        ret.append({'id':str(idx),'start_date':start_date,'num_start_date':str(time_bin_count[delta_days])})
+    
+    return json.dumps(ret)
     
 
-def main():
+def dump_json():
     arg = {"top_n":10,"is_print":False,"wohnung_type":"wg1"}
     
     # Get all json list from dataset folder
@@ -100,23 +103,15 @@ def main():
     
     pbar = tqdm(total=len(json_lst))
     
-    print_date_dist = []
-    print_date_start = []
+    
     for json_path in json_lst:    
         ret = dump_time_dist(arg,json_path)
-        
-        if ret:
-            print_date_dist.append("{0}: {1}".format(json_path.split("\\")[-1][:-5],ret['date_dist']))
-            print_date_start.append("{0}: {1}".format(json_path.split("\\")[-1][:-5],ret["date_start"]))
-
+        print(ret)
+        if ret:break    
         # update pbar 
         pbar.update(1)
     pbar.close()
 
-    print("===== date and top-10 time distance =====")
-    for i in print_date_start:
-        print(i)
-
 if __name__ == "__main__":
-    main()
+    dump_json()
     

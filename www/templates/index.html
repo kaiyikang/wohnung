@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Page Title</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</head>
+
+<body>
+
+    </br>
+    <div id="output">123</div>
+    </br>
+    <canvas id="myChart" width="400" height="400"></canvas>
+
+    <script>
+        $(document).ready(function () {
+            // 每次刷新page，都直接ajax通信
+            $.ajax({
+                data: {},
+                type: 'POST',
+                url: '/dump_date_dist',
+                // 定义数据类型为json
+                dataType: 'json',
+                // after success
+                success: function (data) {
+                    // start to process "data"
+                    console.log(data);
+
+                    // Transform corresponding type
+                    var new_data = [];
+                    $.each(data, function (idx, item) {
+                        new_data.push({
+                            'date': new Date(item.start_date),
+                            'num': parseInt(item.num_start_date),
+                        });
+                    });
+
+                    // Sort data based on date
+                    new_data = new_data.sort((a, b) => a.date - b.date);
+
+                    // start to create data
+                    var x = [];
+                    var y = [];
+
+                    for (let index = 0; index < new_data.length; index++) {
+                        x.push(new_data[index].date.toISOString().slice(0, 10).replace(/-/g, "/"));
+                        y.push(new_data[index].num);
+                    }
+
+                    // Prepare chart data
+                    const chart_data = {
+                        labels: x,
+                        datasets: [{
+                            label: 'The Number of "Frei Wohnung"',
+                            backgroundColor: 'rgb(255, 99, 132)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            data: y,
+                        }]
+                    };
+
+                    var font_size = 20;
+                    // Create config for chartjs
+                    const config = {
+                        type: 'bar',
+                        data: chart_data,
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        font: { size: font_size }
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        font: { size: font_size }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { font: { size: font_size } }
+                                },
+                                title: {
+                                    display: false,
+                                    text: 'Chart.js Bar Chart'
+                                }
+                            }
+                        },
+                    };
+
+                    // Render the chart
+                    var myChart = new Chart(
+                        document.getElementById('myChart'),
+                        config
+                    );
+                }
+            }).done(function (data) { });
+        });
+
+
+    </script>
+
+</body>
+
+</html>
